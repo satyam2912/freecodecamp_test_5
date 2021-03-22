@@ -83,7 +83,7 @@ app.post('/api/exercise/add', (req, res) => {
   }
   if (bodyData.date === "") {
     bodyData.date = new Date();
-     var date = bodyData.date.toDateString()
+    //  var date = bodyData.date.toDateString()
   }
   if (validationMessage.length > 0) {
     return res.send(validationMessage + " " + "required");
@@ -92,7 +92,7 @@ app.post('/api/exercise/add', (req, res) => {
   var exerciseData = new exerciseSessionData({
     description: bodyData.description,
     duration: bodyData.duration,
-    date:date
+    date: bodyData.date
   });
 
   Username.findByIdAndUpdate(bodyData.userId,
