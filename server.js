@@ -81,9 +81,8 @@ app.post('/api/exercise/add', (req, res) => {
   if (bodyData.duration === "") {
     validationMessage.push("duration")
   }
-  if (bodyData.date === "") {
-    bodyData.date = new Date();
-    //  var date = bodyData.date.toDateString()
+  if(bodyData.date === ''){
+    bodyData.date = new Date().toISOString().substring(0, 10)
   }
   if (validationMessage.length > 0) {
     return res.send(validationMessage + " " + "required");
@@ -92,7 +91,7 @@ app.post('/api/exercise/add', (req, res) => {
   var exerciseData = new exerciseSessionData({
     description: bodyData.description,
     duration: bodyData.duration,
-    date: bodyData.date
+    date:bodyData.date
   });
 
   Username.findByIdAndUpdate(bodyData.userId,
@@ -105,7 +104,7 @@ app.post('/api/exercise/add', (req, res) => {
         let responseObject = {}
         responseObject['_id'] = updatedUser.id
         responseObject['username'] = updatedUser.userName
-        responseObject['date'] = exerciseData.date
+        responseObject['date'] = new Date(exerciseData.date).toDateString()
         responseObject['duration'] = exerciseData.duration
         responseObject['description'] = exerciseData.description
         res.json(responseObject)
