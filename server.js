@@ -81,7 +81,7 @@ app.post('/api/exercise/add', (req, res) => {
   if (bodyData.duration === "") {
     validationMessage.push("duration")
   }
-  if(bodyData.date === ''){
+  if (bodyData.date === '') {
     bodyData.date = new Date().toISOString().substring(0, 10)
   }
   if (validationMessage.length > 0) {
@@ -91,7 +91,7 @@ app.post('/api/exercise/add', (req, res) => {
   var exerciseData = new exerciseSessionData({
     description: bodyData.description,
     duration: bodyData.duration,
-    date:bodyData.date
+    date: bodyData.date
   });
 
   Username.findByIdAndUpdate(bodyData.userId,
@@ -119,12 +119,40 @@ app.get('/api/exercise/log', (req, res) => {
   // console.log(typeof(obj_id))
   Username.aggregate([
     {
-      $match: { _id: new mongoose.Types.ObjectId(obj_id)}
+      $match: { _id: new mongoose.Types.ObjectId(obj_id) }
     },
-    {$project: { username   : "$userName", count: { $size:"$log" },log:"$log"}}
+    { $project: { username: "$userName", count: { $size: "$log" }, log: "$log" } }
   ], function (err, userData) {
     if (err) throw err;
-    return res.json(userData[0]);
+    if (!err) {
+
+      if (req.query.from || req.query.to) {
+
+        let fromDate = new Date(0)
+        let toDate = new Date()
+
+        if (req.query.from) {
+          fromDate = new Date(req.query.from)
+        }
+
+        if (req.query.to) {
+          toDate = new Date(req.query.to)
+        }
+        fromDate = fromDate.getTime()
+        toDate = toDate.getTime()
+        userData[0].log = userData[0].log.filter((session) => {
+          let sessionDate = new Date(session.date).getTime()
+          return sessionDate >= fromDate && sessionDate <= toDate
+
+        })
+
+      }
+      if (req.query.limit) {
+        userData[0].log = userData[0].log.slice(0, req.query.limit)
+      }
+      return res.json(userData[0]);
+
+    }
   })
 
 
