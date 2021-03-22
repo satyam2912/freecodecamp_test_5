@@ -63,7 +63,6 @@ app.get('/api/exercise/users', (req, res) => {
     }
   ], function (err, results) {
     if (err) throw err;
-    console.log(results);
     return res.json(results);
   }
   )
@@ -84,6 +83,7 @@ app.post('/api/exercise/add', (req, res) => {
   }
   if (bodyData.date === "") {
     bodyData.date = new Date();
+     var date = bodyData.date.toDateString()
   }
   if (validationMessage.length > 0) {
     return res.send(validationMessage + " " + "required");
@@ -92,7 +92,7 @@ app.post('/api/exercise/add', (req, res) => {
   var exerciseData = new exerciseSessionData({
     description: bodyData.description,
     duration: bodyData.duration,
-    date: bodyData.date
+    date:date
   });
 
   Username.findByIdAndUpdate(bodyData.userId,
@@ -105,7 +105,7 @@ app.post('/api/exercise/add', (req, res) => {
         let responseObject = {}
         responseObject['_id'] = updatedUser.id
         responseObject['username'] = updatedUser.userName
-        responseObject['date'] = new Date(exerciseData.date).toDateString()
+        responseObject['date'] = exerciseData.date
         responseObject['duration'] = exerciseData.duration
         responseObject['description'] = exerciseData.description
         res.json(responseObject)
@@ -125,9 +125,7 @@ app.get('/api/exercise/log', (req, res) => {
     {$project: { username   : "$userName", count: { $size:"$log" },log:"$log"}}
   ], function (err, userData) {
     if (err) throw err;
-    console.log(userData);
-    console.log("request: "+JSON.stringify(userData));
-    return res.json(userData);
+    return res.json(userData[0]);
   })
 
 
