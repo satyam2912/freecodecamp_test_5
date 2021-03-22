@@ -54,13 +54,20 @@ app.post('/api/exercise/new-user', (req, res) => {
 
 
 app.get('/api/exercise/users', (req, res) => {
-  Username.find({}, function (err, arrayOfAllUsers) {
-    if (err) {
-      console.log(err);
-      return
+  Username.aggregate([
+    {
+      $group: {
+        _id: "$_id",
+        "username": { "$first": "$userName" },
+      }
     }
-    return res.json(arrayOfAllUsers);
-  })
+  ], function (err, results) {
+    if (err) throw err;
+    console.log(results);
+    return res.json(results);
+  }
+  )
+
 })
 
 app.post('/api/exercise/add', (req, res) => {
@@ -88,10 +95,10 @@ app.post('/api/exercise/add', (req, res) => {
     duration: bodyData.duration,
     date: bodyData.date
   });
-  
+
   Username.findByIdAndUpdate(bodyData.userId,
     { $push: { log: exerciseData } },
-    {new: true, useFindAndModify: false},
+    { new: true, useFindAndModify: false },
     (err, updatedUser) => {
       if (err) {
         res.status(404).send('unknown _id');
