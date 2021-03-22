@@ -31,7 +31,7 @@ app.get('/', (req, res) => {
   res.sendFile(__dirname + '/views/index.html')
 });
 
-
+// register new user
 app.post('/api/exercise/new-user', (req, res) => {
   const userName = req.body.username;
   async function checkUser(userName) {
@@ -52,7 +52,7 @@ app.post('/api/exercise/new-user', (req, res) => {
   checkUser(userName);
 })
 
-
+//retrive all users who are registered
 app.get('/api/exercise/users', (req, res) => {
   Username.aggregate([
     {
@@ -67,9 +67,8 @@ app.get('/api/exercise/users', (req, res) => {
     return res.json(results);
   }
   )
-
 })
-
+//add exercise data for user
 app.post('/api/exercise/add', (req, res) => {
   let bodyData = req.body;
   let validationMessage = [];
@@ -113,6 +112,27 @@ app.post('/api/exercise/add', (req, res) => {
       }
     }
   )
+})
+
+//log by userid
+app.get('/api/exercise/log', (req, res) => {
+  let obj_id = req.query.userId
+  // console.log(typeof(obj_id))
+  Username.aggregate([
+    {
+      $match: { _id: new mongoose.Types.ObjectId(obj_id)}
+    },
+    {$project: { username   : "$userName", count: { $size:"$log" },log:"$log"}}
+  ], function (err, userData) {
+    if (err) throw err;
+    console.log(userData);
+    console.log("request: "+JSON.stringify(userData));
+    return res.json(userData);
+  })
+
+
+
+
 })
 
 const listener = app.listen(process.env.PORT || 3000, () => {
