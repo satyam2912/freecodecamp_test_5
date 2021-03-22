@@ -88,6 +88,7 @@ app.post('/api/exercise/add', (req, res) => {
     duration: bodyData.duration,
     date: bodyData.date
   });
+  
   Username.findByIdAndUpdate(bodyData.userId,
     { $push: { log: exerciseData } },
     {new: true, useFindAndModify: false},
